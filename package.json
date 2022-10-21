@@ -1,0 +1,16 @@
+{
+  "name": "tsqueryengine",
+  "version": "1.0.0",
+  "description": "query engine experimenting",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx tsc && node src/main.js"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  },
+  "keywords": [],
+  "author": "Maarten Vandenbrande",
+  "license": "MIT"
+}
