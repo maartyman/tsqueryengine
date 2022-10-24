@@ -1,24 +1,29 @@
-import {Relation} from "../relation/relation";
+import {Relation} from "../../relation/relation";
 
 export function mergeJoin(left: Relation, right: Relation, a: string) {
+  if (!left.hasOwnProperty(a) || !right.hasOwnProperty(a)) {
+    return new Relation();
+  }
+
   const output = new Relation();
 
   //sort (maybe todo)
   left.sort(a);
   right.sort(a);
 
-  let leftSingle: any;
-  let leftSubset: any[];
+  let leftSingle: object;
+  let leftSubset: object[];
   let leftPosition = 0;
   [leftSingle, leftSubset, leftPosition] = advance(left, a, leftPosition);
 
-  let rightSingle: any;
-  let rightSubset: any[];
+  let rightSingle: object;
+  let rightSubset: object[];
   let rightPosition = 0;
   [rightSingle, rightSubset, rightPosition] = advance(right, a, rightPosition);
 
   while (leftSubset.length != 0 && rightSubset.length != 0) {
     //console.log(JSON.stringify(leftSingle) + " => " + JSON.stringify(rightSingle));
+    // @ts-ignore
     if (leftSingle[a] === rightSingle[a]) {
       //add cartesian product of left_subset and right_subset to output
       rightSubset.forEach((rightElement) => {
@@ -40,6 +45,7 @@ export function mergeJoin(left: Relation, right: Relation, a: string) {
       [leftSingle, leftSubset, leftPosition] = advance(left, a, leftPosition);
       [rightSingle, rightSubset, rightPosition] = advance(right, a, rightPosition);
     }
+    // @ts-ignore
     else if (leftSingle[a] < rightSingle[a]) {
       [leftSingle, leftSubset, leftPosition] = advance(left, a, leftPosition);
     }
@@ -50,9 +56,10 @@ export function mergeJoin(left: Relation, right: Relation, a: string) {
   return output;
 }
 
-function advance(sorted: Relation, a: string, position: number) {
+function advance(sorted: Relation, a: string, position: number): [object, object[], number] {
   const single = sorted.get(position);
   let subset = [];
+  // @ts-ignore
   while (position < sorted.size() && sorted.get(position)[a] === single[a]) {
     subset.push(sorted.get(position))
     position++;

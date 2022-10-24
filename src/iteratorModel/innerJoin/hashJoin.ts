@@ -1,4 +1,4 @@
-import {Relation} from "../relation/relation";
+import {Relation} from "../../relation/relation";
 
 export function hashJoin(left: Relation, right: Relation, a: string) {
   const output = new Relation();

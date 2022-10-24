@@ -1,7 +1,7 @@
-import {mergeJoin} from "../innerJoinAlgorithms/mergeJoin";
+import {mergeJoin} from "./innerJoin/mergeJoin";
 import {Relation} from "../relation/relation";
-import {nestedLoopJoin} from "../innerJoinAlgorithms/nestedLoopJoin";
-import {hashJoin} from "../innerJoinAlgorithms/hashJoin";
+import {nestedLoopJoin} from "./innerJoin/nestedLoopJoin";
+import {hashJoin} from "./innerJoin/hashJoin";
 
 export function iteratorMergeJoin(
   arrayHasLocation: Array<any>,
@@ -38,9 +38,9 @@ export function iteratorNestedLoopJoin(
 }
 
 export function iteratorHashJoin(
-  arrayHasLocation: Array<any>,
-  arrayHasName: Array<any>,
-  arrayASensor: Array<any>
+  arrayHasLocation: Array<object>,
+  arrayHasName: Array<object>,
+  arrayASensor: Array<object>
 ) {
   return  hashJoin(
     hashJoin(

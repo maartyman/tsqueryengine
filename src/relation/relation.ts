@@ -1,8 +1,8 @@
 export class Relation {
-  private readonly array: Array<any> ;
+  private readonly array: Array<object> ;
 
-  constructor(array?: Array<any>) {
-    this.array = (array == undefined)? new Array<any>() : array;
+  constructor(array?: Array<object>) {
+    this.array = (array == undefined)? new Array<object>() : array;
   }
 
   public get(index: number) {
@@ -11,9 +11,11 @@ export class Relation {
 
   public sort(a: string) {
     this.array.sort((el1, el2) => {
+      // @ts-ignore
       if (el1[a] > el2[a]) {
         return 1;
       }
+      // @ts-ignore
       if (el2[a] > el1[a]) {
         return -1;
       }
