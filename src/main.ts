@@ -1,5 +1,6 @@
 import {iteratorHashJoin} from "./iteratorModel/iteratorModel";
-import {pubConsModel} from "./pubConsCallbackModel/pubConsModel";
+import {pubConsAsyncModel} from "./pubConsAsyncModel/pubConsAsyncModel";
+import {pubConsCallbackModel} from "./pubConsCallbackModel/pubConsCallbackModel";
 
 let arrayHasLocation = new Array<object>();
 arrayHasLocation.push({x: "s1", y: "l1"});
@@ -29,14 +30,29 @@ arrayASensor.push({x: "s10"});
 
 //console.log(iteratorHashJoin(arrayHasLocation, arrayHasName, arrayASensor));
 
-const model = new pubConsModel();
+const model1 = new pubConsCallbackModel();
 
-model.pushHasLocationBinding([arrayHasLocation[0]]);
-model.pushHasNameBinding([arrayHasName[0]]);
-model.pushASensorBinding([arrayASensor[0]]);
+model1.pushHasLocationBinding([arrayHasLocation[0]]);
+model1.pushHasNameBinding([arrayHasName[0]]);
+model1.pushASensorBinding([arrayASensor[0]]);
 
-model.pushHasLocationBinding([arrayHasLocation[1]]);
-model.pushHasNameBinding([arrayHasName[1]]);
-model.pushASensorBinding([arrayASensor[1]]);
+model1.pushHasLocationBinding([arrayHasLocation[1]]);
+model1.pushHasNameBinding([arrayHasName[1]]);
+model1.pushASensorBinding([arrayASensor[1]]);
 
-model.pushASensorBinding([arrayASensor[2]]);
+model1.pushASensorBinding([arrayASensor[2]]);
+
+
+console.log("\nnext:\n")
+const model2 = new pubConsAsyncModel();
+
+model2.pushHasLocationBinding([arrayHasLocation[0]]);
+model2.pushHasNameBinding([arrayHasName[0]]);
+model2.pushASensorBinding([arrayASensor[0]]);
+
+model2.pushHasLocationBinding([arrayHasLocation[1]]);
+model2.pushHasNameBinding([arrayHasName[1]]);
+model2.pushASensorBinding([arrayASensor[1]]);
+
+model2.pushASensorBinding([arrayASensor[2]]);
+
