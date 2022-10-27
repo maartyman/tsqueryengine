@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 
+
 export class hashJoin extends EventEmitter {
   private leftMap = new Map<string, Array<object>>();
   private rightMap = new Map<string, Array<object>>();
@@ -20,10 +21,11 @@ export class hashJoin extends EventEmitter {
     //TODO assert diff has a
     //TODO only assuming positive diff right now
 
-    console.log("Doing diff: ", diff);
+    //console.log("Doing diff: ", diff);
 
     let outputDiff: object[] = [];
-    diff.forEach((diffElement) => {
+
+    for (const diffElement of diff) {
       // @ts-ignore
       const rightElementArray = changeMap.get(diffElement[a]);
       if (rightElementArray) {
@@ -50,7 +52,8 @@ export class hashJoin extends EventEmitter {
           outputDiff.push(obj);
         }
       }
-    });
+    }
+
     if (outputDiff.length != 0) {
       this.emit("output", outputDiff);
     }

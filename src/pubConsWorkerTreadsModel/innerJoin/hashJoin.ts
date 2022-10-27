@@ -1,72 +1,116 @@
-const { parentPort, workerData } = require('node:worker_threads');
+const { workerData } = require('node:worker_threads');
 
-const leftMap = new Map<string, Array<object>>();
-const rightMap = new Map<string, Array<object>>();
+const leftMap = new Map<string, Map<string, object>>();
+const rightMap = new Map<string, Map<string, object>>();
 
-const a = workerData;
+const a = workerData[0];
+const inPortLeft = workerData[1][0];
+const inPortRight = workerData[1][1];
+const outPort = workerData[2];
+const workerTitle =workerData[3];
+
+let numberAddition = 0;
+let time0a = 0;
+let time1a = 0;
+let time2a = 0;
 
 //[1, outputDiff]
-parentPort.on('message', (message: [number, object[]]) => {
-  console.log("message", message);
-
-  switch (message[0]) {
-    case 0:
-      join(leftMap, rightMap, message[1], a);
-      break;
-    case 1:
-      join(rightMap, leftMap, message[1], a);
-      break;
-    default:
-      break;
-  }
+inPortLeft.on('message', (message: {addition: boolean, data: object}) => {
+  //console.log(workerTitle + " message (left): ", message);
+  join(leftMap, rightMap, message);
 });
 
-async function join(changeMap: Map<string, Array<object>>, staticMap: Map<string, Array<object>>, diff: object[], a: string) {
+inPortRight.on('message', (message: {addition: boolean, data: object}) => {
+  //console.log(workerTitle + " message (right): ", message);
+  join(rightMap, leftMap, message);
+});
+
+async function join(changeMap: Map<string, Map<string, object>>, staticMap: Map<string, Map<string, object>>, diff: {addition: boolean, data: object}) {
   //TODO assert diff has a
   //TODO only assuming positive diff right now
 
-  async function sleep(ms: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve();
-      }, ms);
-    });
-  }
-
   //await sleep(Math.random()*100);
 
-  console.log("Doing diff: ", diff);
-
-  let outputDiff: object[] = [];
-  diff.forEach((diffElement) => {
+  //console.log("Doing diff: ", diff);
+  if (diff.addition) {
+    const time0 = performance.now();
     // @ts-ignore
-    const rightElementArray = changeMap.get(diffElement[a]);
-    if (rightElementArray) {
-      rightElementArray.push(diffElement);
-    }
-    else {
+    let changeElementMap = changeMap.get(diff.data[a]);
+    if (!changeElementMap) {
+      changeElementMap = new Map();
       // @ts-ignore
-      changeMap.set(diffElement[a], [diffElement]);
+      changeMap.set(diff.data[a], changeElementMap);
     }
+    changeElementMap.set(JSON.stringify(diff.data), diff.data);
+    const time1 = performance.now();
+
+    let time2 = 0;
+    let number = 0;
 
     // @ts-ignore
-    const leftElementArray = staticMap.get(diffElement[a]);
-    if (leftElementArray) {
-      for (const leftElement of leftElementArray) {
+    const staticElementMap = staticMap.get(diff.data[a]);
+    if (staticElementMap != undefined) {
+      for (const staticElement of staticElementMap.values()) {
+        const time2t = performance.now();
         let obj: Record<string, any> = {};
-        for (const [key, value] of Object.entries(leftElement)) {
+        for (const [key, value] of Object.entries(staticElement)) {
           obj[key] = value;
         }
-        for (const [key, value] of Object.entries(diffElement)) {
+        for (const [key, value] of Object.entries(diff.data)) {
           if (key !== a) {
             obj[key] = value;
           }
         }
-        outputDiff.push(obj);
+        time2 += performance.now() - time2t;
+        number++;
+        outPort.postMessage({addition: true, data: obj});
+        //console.log(workerTitle + " join output: ", {addition: true, data: obj});
+      }
+      time2 /= number;
+    }
+
+    const time3 = performance.now();
+
+    time0a += time1 - time0;
+    time1a += time2;
+    time2a += time3 - time1;
+    numberAddition++;
+    if (numberAddition % 1000 == 0) {
+      console.log(workerTitle, numberAddition + " time0: ", time0a/numberAddition);
+      console.log(workerTitle, numberAddition + " time1: ", time1a/numberAddition);
+      console.log(workerTitle, numberAddition + " time2: ", time2a/numberAddition);
+    }
+  }
+  else {
+    // @ts-ignore
+    let changeElementMap = changeMap.get(diff.data[a]);
+    if (changeElementMap) {
+      changeElementMap.delete(JSON.stringify(diff.data));
+      if (changeElementMap.size == 0) {
+        // @ts-ignore
+        changeMap.delete(diff.data[a]);
       }
     }
-  });
-  if (outputDiff.length != 0) {
-    parentPort.postMessage(outputDiff);
+    else {
+      return;
+    }
+
+    // @ts-ignore
+    const staticElementMap = staticMap.get(diff.data[a]);
+    if (staticElementMap != undefined) {
+      for (const staticElement of staticElementMap.values()) {
+        let obj: Record<string, any> = {};
+        for (const [key, value] of Object.entries(staticElement)) {
+          obj[key] = value;
+        }
+        for (const [key, value] of Object.entries(diff.data)) {
+          if (key !== a) {
+            obj[key] = value;
+          }
+        }
+        outPort.postMessage({addition: false, data: obj});
+        //console.log(workerTitle + " join output: ", {addition: false, data: obj});
+      }
+    }
   }
 }
