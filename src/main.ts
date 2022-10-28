@@ -1,39 +1,84 @@
-import {iteratorHashJoin} from "./iteratorModel/iteratorModel";
+import {iteratorHashJoin, iteratorNestedLoopJoin} from "./iteratorModel/iteratorModel";
 import {pubConsAsyncModel} from "./pubConsAsyncModel/pubConsAsyncModel";
 import {pubConsCallbackModel} from "./pubConsCallbackModel/pubConsCallbackModel";
 import {pubConsWorkerThreadsModel} from "./pubConsWorkerTreadsModel/pubConsWorkerThreadsModel";
 import {sleep} from "./utils/sleep";
+import {BindingDiff} from "./types/types";
 
-let arrayHasLocation = new Array<object>();
-arrayHasLocation.push({x: "s1", y: "l1"});
-arrayHasLocation.push({x: "s2", y: "l2"});
-arrayHasLocation.push({x: "s3", y: "l2"});
-arrayHasLocation.push({x: "s3", y: "l3"});
-arrayHasLocation.push({x: "s3", y: "l3"});
-arrayHasLocation.push({x: "s5", y: "l3"});
-arrayHasLocation.push({x: "s10", y: "l10"});
+let arrayHasLocation = new Array<BindingDiff>();
+arrayHasLocation.push({addition: true, data: {x: "s1", y: "l1"}});
+arrayHasLocation.push({addition: true, data: {x: "s2", y: "l2"}});
+arrayHasLocation.push({addition: true, data: {x: "s3", y: "l2"}});
+arrayHasLocation.push({addition: true, data: {x: "s3", y: "l3"}});
+arrayHasLocation.push({addition: true, data: {x: "s3", y: "l3"}});
+arrayHasLocation.push({addition: true, data: {x: "s5", y: "l3"}});
+arrayHasLocation.push({addition: true, data: {x: "s10", y: "l10"}});
+//7
 
-let arrayHasName = new Array<object>();
-arrayHasName.push({y: "l1", z: "Kitchen"});
-arrayHasName.push({y: "l2", z: "Outside"});
-arrayHasName.push({y: "l2", z: "Patio"});
-arrayHasName.push({y: "l2", z: "Deck"});
-arrayHasName.push({y: "l3", z: "Deck"});
-arrayHasName.push({y: "l4", z: "Unused"});
-arrayHasName.push({y: "l10", z: "Living"});
+let arrayHasName = new Array<BindingDiff>();
+arrayHasName.push({addition: true, data: {y: "l1", z: "Kitchen"}});
+arrayHasName.push({addition: true, data: {y: "l2", z: "Outside"}});
+arrayHasName.push({addition: true, data: {y: "l2", z: "Patio"}});
+arrayHasName.push({addition: true, data: {y: "l2", z: "Deck"}});
+arrayHasName.push({addition: true, data: {y: "l3", z: "Deck"}});
+arrayHasName.push({addition: true, data: {y: "l4", z: "Unused"}});
+arrayHasName.push({addition: true, data: {y: "l10", z: "Living"}});
+//7
 
-let arrayASensor = new Array<object>();
-arrayASensor.push({x: "s1"});
-arrayASensor.push({x: "s2"});
-arrayASensor.push({x: "s3"});
-arrayASensor.push({x: "s4"});
-arrayASensor.push({x: "s5"});
-arrayASensor.push({x: "s10"});
+let arrayASensor = new Array<BindingDiff>();
+arrayASensor.push({addition: true, data: {x: "s1"}});
+arrayASensor.push({addition: true, data: {x: "s2"}});
+arrayASensor.push({addition: true, data: {x: "s3"}});
+arrayASensor.push({addition: true, data: {x: "s4"}});
+arrayASensor.push({addition: true, data: {x: "s5"}});
+arrayASensor.push({addition: true, data: {x: "s10"}});
+//6
 
 //console.log(iteratorHashJoin(arrayHasLocation, arrayHasName, arrayASensor));
 
+let queryPlan = {
+  type: "print",
+  options: {
+    input: {
+      type: "join",
+      options: {
+        joinRequirements: [
+          "x"
+        ],
+        input: {
+          left: {
+            type: "join",
+            options: {
+              joinRequirements: [
+                "y"
+              ],
+              input: {
+                left: {
+                  type: "binding",
+                  name: "tp1"
+                },
+                right: {
+                  type: "binding",
+                  name: "tp2"
+                }
+              }
+            }
+          },
+          right:{
+            type: "binding",
+            name: "tp3"
+          }
+        }
+      }
+    }
+  }
+}
 
-const model1 = new pubConsWorkerThreadsModel();
+iteratorHashJoin(
+  arrayHasLocation,
+  arrayHasName,
+  arrayASensor
+);
 
 
 /*
@@ -90,6 +135,7 @@ sleep(1000).then( () => {
 });
 */
 
+/*
 model1.pushHasNameBinding({y: "l1", z: "Kitchen"});
 model1.pushHasNameBinding({y: "l2", z: "Living"});
 model1.pushHasNameBinding({y: "l3", z: "Sleeping-room"});
@@ -121,7 +167,7 @@ sleep(1000).then( () => {
     model1.pushHasLocationBinding({x: "s4", y: "l3"}, false);
   });
 });
-
+*/
 
 /*
 console.log("\nnext:\n");

@@ -1,4 +1,4 @@
-import {Worker, MessageChannel} from "node:worker_threads";
+import {Worker, MessageChannel, MessagePort} from "node:worker_threads";
 
 export class pubConsWorkerThreadsModel {
   private join1;
@@ -10,7 +10,12 @@ export class pubConsWorkerThreadsModel {
   private channelJoin2Right = new MessageChannel();
   private channelOutput = new MessageChannel();
 
-  constructor() {
+  private channels: MessageChannel[] = [];
+  private workers: Worker[] = [];
+
+  constructor(queryPlan: object) {
+    let messageChannel = new MessageChannel();
+
     this.join1 = new Worker(
       "./src/pubConsWorkerTreadsModel/innerJoin/hashJoin.js",
       {
@@ -58,6 +63,37 @@ export class pubConsWorkerThreadsModel {
       }
     });
   }
+
+  /*
+  private queryPlanInit(queryPlan: any): MessagePort {
+    switch (queryPlan.type) {
+      case "print":
+        const inputMessagePort = this.queryPlanInit(queryPlan.option.inpu);
+
+        const outputMessageChannel = new MessageChannel();
+        this.channels.push(outputMessageChannel);
+
+        this.workers.push(new Worker("./src/pubConsWorkerTreadsModel/innerJoin/print.js",
+          {
+            transferList: [
+              inputMessagePort,
+              outputMessageChannel.port1
+            ],
+            workerData: [
+              inputMessagePort,
+              outputMessageChannel.port1,
+              "Print worker"
+            ]
+          }
+        ));
+
+        return outputMessageChannel.port2;
+      case "join":
+
+        break;
+    }
+  }
+  */
 
   public pushHasLocationBinding(binding: object, addition?: boolean) {
     console.log(`${addition? "Added": "Removed"} the following bindings: `, binding);
